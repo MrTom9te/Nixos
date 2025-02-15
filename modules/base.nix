@@ -18,6 +18,9 @@
     font = "Lat2-Terminus16";
     keyMap = "br-abnt2";
   };
+  # Configuração do Fish como shell padrão do sistema
+    programs.fish.enable = true;
+    users.defaultUserShell = pkgs.fish;
 
   users.users.tomate = {
     isNormalUser = true;
@@ -43,10 +46,14 @@
         #Adicione outras configurações como locations, fastcgi, etc, aqui.
     };
   };
+
+
+
+  # Permitir sudo sem senha para o grupo wheel
+    security.sudo.wheelNeedsPassword = false;
   # Exemplo: Habilitar Netdata (opcional)
   services.netdata.enable = true;
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 80 443 ];
-  system.autoUpgrade.enable = true;  # Atualizações automáticas
   nixpkgs.config.allowUnfree = true; #necessario para instalar o rustup por ele ser proprietario
 }
