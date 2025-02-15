@@ -51,19 +51,6 @@
     passwordAuthentication = false;
   };
 
-  # Exemplo: Habilitar Nginx (opcional)
-  services.nginx = {
-      enable = true;
-      virtualHosts."meu-servidor" = { #Configuração virtual host
-        serverAliases = [ "www.meu-blog" ];
-        forceSSL = true; #Força HTTPS
-        root = "/var/www/html"; #Diretório raiz do site
-        #Adicione outras configurações como locations, fastcgi, etc, aqui.
-    };
-  };
-
-
-
   # Permitir sudo sem senha para o grupo wheel
     security.sudo.wheelNeedsPassword = false;
   # Exemplo: Habilitar Netdata (opcional)
