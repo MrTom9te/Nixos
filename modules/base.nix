@@ -8,8 +8,8 @@
     enable = true;
   };
   services.fail2ban.enable = true;
-  networking.hostName = "meu-servidor";
-  networking.networkmanager.enable = true; # Usaremos NetworkManager
+  networking.hostName = "mr-tomate-server";
+  networking.networkmanager.enable = true;
 
   time.timeZone = "America/Manaus";
 
@@ -33,9 +33,20 @@
     passwordAuthentication = false;
   };
 
+  # Exemplo: Habilitar Nginx (opcional)
+  services.nginx = {
+      enable = true;
+      virtualHosts."meu-servidor" = { #Configuração virtual host
+        serverAliases = [ "www.meu-blog" ];
+        forceSSL = true; #Força HTTPS
+        root = "/var/www/html"; #Diretório raiz do site
+        #Adicione outras configurações como locations, fastcgi, etc, aqui.
+    };
+  };
+  # Exemplo: Habilitar Netdata (opcional)
+  services.netdata.enable = true;
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 80 443 ];
-
-  system.stateVersion = "23.11"; # Ajuste para a versão do NixOS
+  system.autoUpgrade.enable = true;  # Atualizações automáticas
   nixpkgs.config.allowUnfree = true; #necessario para instalar o rustup por ele ser proprietario
 }
