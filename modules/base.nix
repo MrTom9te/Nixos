@@ -1,9 +1,24 @@
 { config, pkgs, ... }:
 
 {
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
-  boot.loader.grub.device = "/dev/sda"; # Ajuste se necessário
+  # Configuração do sistema de arquivos
+    fileSystems."/" = {
+      device = "/dev/sda3";
+      fsType = "ext4";
+    };
+
+    fileSystems."/boot" = {
+      device = "/dev/sda1";
+      fsType = "vfat";
+    };
+
+    swapDevices = [ { device = "/dev/sda2"; } ];
+
+    # Resto das configurações...
+    boot.loader.grub.enable = true;
+    boot.loader.grub.version = 2;
+    boot.loader.grub.device = "/dev/sda";
+
   system.autoUpgrade = {
     enable = true;
   };
