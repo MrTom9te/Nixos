@@ -47,12 +47,6 @@
         };
       };
     };
-    # Configuração de logs
-    journald.extraConfig = ''
-      SystemMaxUse=100M
-      MaxRetentionSec=1week
-    '';
-  };
 
   # Configurações Básicas
   time.timeZone = "America/Manaus";
