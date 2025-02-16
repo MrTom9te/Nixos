@@ -55,8 +55,6 @@
   console = {
     font = "Lat2-Terminus16";
     keyMap = "br-abnt2";
-    # Configuração mais compatível para modo texto
-    mode = "keep";
     earlySetup = true;
     packages = with pkgs; [ terminus_font ];
   };
