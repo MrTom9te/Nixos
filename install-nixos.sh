@@ -6,6 +6,19 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
+if [ "$EUID" -ne 0 ]; then
+  echo "Por favor, execute como root"
+  exit 1
+fi
+
+# Verificar conexão com internet
+if ! ping -c 1 8.8.8.8 &> /dev/null; then
+  echo "Sem conexão com a internet. Configurando..."
+  # Tentar configurar rede
+  ip link set dev $(ip link | grep -o "en[^:]*" | head -n1) up
+  dhclient $(ip link | grep -o "en[^:]*" | head -n1)
+fi
+
 echo -e "${GREEN}Iniciando instalação automatizada do NixOS...${NC}"
 
 # Função para verificar erros

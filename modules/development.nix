@@ -2,19 +2,29 @@
 
 {
   environment.systemPackages = with pkgs; [
-    bash
-    curl
-    git
-    vim
-    neovim
-    nano
-    rustup
-    php
-    go
-    gcc
-    gnumake
-    cmake
-    htop
-    fish
-  ];
+      # Utilitários básicos
+      bash
+      curl
+      wget
+      git
+      vim
+      neovim
+      nano
+      htop
+      fish
+      tmux
+
+      # Ferramentas de rede
+      inetutils
+      nettools
+      dnsutils
+
+      # Desenvolvimento
+      rustup
+      php
+      go
+      gcc
+      gnumake
+      cmake
+    ];
 }
