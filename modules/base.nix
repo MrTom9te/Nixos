@@ -43,7 +43,7 @@
     shell = pkgs.fish;
   };
 
-  users.users.tomate = {
+  users.users.admin = {
     isNormalUser = true;
     initialPassword = "senhaSegura123"; #Lembrar de trocar a asenha depois
     description = "Usuário Tomate";

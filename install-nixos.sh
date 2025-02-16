@@ -98,8 +98,8 @@ nixos-install --no-root-passwd
 check_error "Falha na instalação"
 
 echo -e "${GREEN}Instalação concluída com sucesso!${NC}"
-echo "1. Remova a mídia de instalação"
-echo "2. Digite 'reboot' para reiniciar"
+echo "1. Digite 'reboot' para reiniciar"
+echo "2. Remova a mídia de instalação"
 echo "3. Faça login como root"
 echo "4. Configure a senha do root com 'passwd'"
-echo "5. Configure a senha do usuário tomate com 'passwd tomate'"
+echo "5. Configure a senha do usuário tomate com 'passwd admin'"
