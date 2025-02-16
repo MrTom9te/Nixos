@@ -18,7 +18,6 @@
     enable = true;
     version = 2;
     device = "/dev/sda";
-    gfxmode = "1920x1080";
     gfxpayload = "keep";
   };
 
