@@ -18,7 +18,6 @@
     enable = true;
     version = 2;
     device = "/dev/sda";
-    gfxpayload = "keep";
   };
 
   # Configuração de Rede - versão mais simples e robusta
