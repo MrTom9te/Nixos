@@ -2,22 +2,21 @@
 
 {
   # Configuração do sistema de arquivos
-    fileSystems."/" = {
-      device = "/dev/sda3";
-      fsType = "ext4";
-    };
+  fileSystems."/" = {
+    device = "/dev/sda3";
+    fsType = "ext4";
+  };
 
-    fileSystems."/boot" = {
-      device = "/dev/sda1";
-      fsType = "vfat";
-    };
+  fileSystems."/boot" = {
+    device = "/dev/sda1";
+    fsType = "vfat";
+  };
 
-    swapDevices = [ { device = "/dev/sda2"; } ];
+  swapDevices = [ { device = "/dev/sda2"; } ];
 
-    # Resto das configurações...
-    boot.loader.grub.enable = true;
-    boot.loader.grub.version = 2;
-    boot.loader.grub.device = "/dev/sda";
+  boot.loader.grub.enable = true;
+  boot.loader.grub.version = 2;
+  boot.loader.grub.device = "/dev/sda";
 
   system.autoUpgrade = {
     enable = true;
@@ -33,29 +32,36 @@
     font = "Lat2-Terminus16";
     keyMap = "br-abnt2";
   };
+
   # Configuração do Fish como shell padrão do sistema
-    programs.fish.enable = true;
-    users.defaultUserShell = pkgs.fish;
+  programs.fish.enable = true;
+  users.defaultUserShell = pkgs.fish;
+
+  # Configuração dos usuários
+  users.users.root = {
+    initialPassword = "senhaSegura123";  # Senha inicial para root
+    shell = pkgs.fish;
+  };
 
   users.users.tomate = {
     isNormalUser = true;
+    initialPassword = "senhaSegura123"; #Lembrar de trocar a asenha depois
     description = "Usuário Tomate";
     extraGroups = [ "wheel" "networkmanager" ];
     shell = pkgs.fish;
-
   };
 
   services.openssh = {
     enable = true;
     permitRootLogin = "no";
-    passwordAuthentication = false;
+    passwordAuthentication = true;
   };
 
   # Permitir sudo sem senha para o grupo wheel
-    security.sudo.wheelNeedsPassword = false;
-  # Exemplo: Habilitar Netdata (opcional)
+  security.sudo.wheelNeedsPassword = false;
+
   services.netdata.enable = true;
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 80 443 ];
-  nixpkgs.config.allowUnfree = true; #necessario para instalar o rustup por ele ser proprietario
+  nixpkgs.config.allowUnfree = true;
 }
