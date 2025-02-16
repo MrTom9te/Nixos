@@ -20,22 +20,25 @@
     device = "/dev/sda";
   };
 
-  # Configuração de Rede - versão mais simples e robusta
+  # Configuração de Rede Unificada
   networking = {
     hostName = "mr-tomate-server";
     useNetworkd = true;
-    useDHCP = true;  # Habilita DHCP global
-    networkmanager.enable = false;  # Desabilita NetworkManager
-
-    # DNS Fallback
+    useDHCP = true;
+    networkmanager.enable = false;
     nameservers = [ "8.8.8.8" "8.8.4.4" ];
+
+    # Firewall
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [ 22 80 443 ];
+    };
   };
 
   # Configuração do systemd-networkd
   systemd = {
     network = {
       enable = true;
-      # Configuração automática para todas as interfaces ethernet
       networks."10-ethernet" = {
         matchConfig.Type = "ether";
         networkConfig = {
@@ -44,13 +47,15 @@
         };
       };
     };
-    # Desabilita wait-online
-    services.systemd-networkd-wait-online.enable = false;
+    # Configuração de logs
+    journald.extraConfig = ''
+      SystemMaxUse=100M
+      MaxRetentionSec=1week
+    '';
   };
 
-  services.fail2ban.enable = true;
+  # Configurações Básicas
   time.timeZone = "America/Manaus";
-
   i18n.defaultLocale = "pt_BR.UTF-8";
   console = {
     font = "Lat2-Terminus16";
@@ -59,21 +64,22 @@
     packages = with pkgs; [ terminus_font ];
   };
 
-  # Configuração de logs
-  services.journald = {
-    extraConfig = ''
-      SystemMaxUse=100M
-      MaxRetentionSec=1week
-    '';
-  };
-
-  # Configuração do Bash como shell padrão do sistema
-  users.defaultUserShell = pkgs.bash;
-
   # Configuração dos usuários
-  users.users.root = {
-    initialPassword = "senhaSegura123";
-    shell = pkgs.bash;
+  users = {
+    defaultUserShell = pkgs.bash;
+    users = {
+      root = {
+        initialPassword = "senhaSegura123";
+        shell = pkgs.bash;
+      };
+      admin = {
+        isNormalUser = true;
+        initialPassword = "senhaSegura123";
+        description = "Usuário Admin";
+        extraGroups = [ "wheel" ];
+        shell = pkgs.bash;
+      };
+    };
   };
 
   # Configurações de segurança
@@ -81,49 +87,30 @@
     sudo.wheelNeedsPassword = false;
     audit.enable = true;
     rtkit.enable = true;
-    # Limitar processos do usuário
-    pam.loginLimits = [
-      {
-        domain = "@wheel";
-        type = "soft";
-        item = "nofile";
-        value = "524288";
-      }
-    ];
+    pam.loginLimits = [{
+      domain = "@wheel";
+      type = "soft";
+      item = "nofile";
+      value = "524288";
+    }];
   };
 
-  users.users.admin = {
-    isNormalUser = true;
-    initialPassword = "senhaSegura123";
-    description = "Usuário Admin";
-    extraGroups = [ "wheel" "networkmanager" ];
-    shell = pkgs.bash;
-  };
-
-  services.openssh = {
-    enable = true;
-    permitRootLogin = "no";
-    passwordAuthentication = true;
-  };
-
-  # Serviços e Firewall
+  # Serviços
   services = {
+    fail2ban.enable = true;
+    openssh = {
+      enable = true;
+      permitRootLogin = "no";
+      passwordAuthentication = true;
+    };
     netdata.enable = true;
-    # Serviços básicos
     dbus.enable = true;
     upower.enable = true;
     acpid.enable = true;
   };
 
-  networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [ 22 80 443 ];
-  };
-
+  # Configurações do Sistema
   nixpkgs.config.allowUnfree = true;
-
-  # Desabilita o timeout do NetworkManager
-  systemd.services.NetworkManager-wait-online.enable = false;
 
   # Configurações do Bash
   programs.bash = {
@@ -135,7 +122,6 @@
       l = "ls -CF";
     };
     shellInit = ''
-      # Configurações adicionais do Bash
       export HISTSIZE=10000
       export HISTFILESIZE=20000
       export HISTCONTROL=ignoreboth
