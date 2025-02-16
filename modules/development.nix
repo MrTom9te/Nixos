@@ -23,52 +23,40 @@
     vim
     neovim
     nano
-
     # Linguagens de Programação
     ## Python
     python3
     python311Packages.pip
     python311Packages.ipython
-
     ## JavaScript/Node.js
     nodejs_20
     yarn
-
     ## Rust
     rustup
     cargo
-
     ## Go
     go
-
     ## PHP
     php
-    composer
-
     ## C/C++
     gcc
     gnumake
     cmake
-
     # Ferramentas de Desenvolvimento
     ## Git Tools
     git-lfs
     lazygit
-
     ## Banco de Dados
     sqlite
-
     ## Network Tools
     nmap
     netcat
     tcpdump
     mtr
-
     ## Build Tools
     autoconf
     automake
     pkg-config
-
     ## Misc Development Tools
     jq  # JSON processor
     yq  # YAML processor
