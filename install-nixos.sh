@@ -4,6 +4,7 @@
 # Cores para output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
 if [ "$EUID" -ne 0 ]; then
@@ -29,6 +30,21 @@ check_error() {
     fi
 }
 
+# Função para verificar se um ponto de montagem está em uso
+is_mounted() {
+    mount | grep -q "on $1 "
+}
+
+# Função para desmontar partições se necessário
+unmount_if_needed() {
+    local mount_point=$1
+    if is_mounted "$mount_point"; then
+        echo -e "${YELLOW}Desmontando $mount_point${NC}"
+        umount -R "$mount_point"
+        check_error "Falha ao desmontar $mount_point"
+    fi
+}
+
 # Verificar se está em modo UEFI
 if [ -d "/sys/firmware/efi/efivars" ]; then
     UEFI_MODE=1
@@ -45,9 +61,23 @@ echo -e "${GREEN}Digite o dispositivo para instalação (ex: sda):${NC}"
 read DISK
 DISK="/dev/$DISK"
 
+# Verificar se o disco existe
+if [ ! -b "$DISK" ]; then
+    echo -e "${RED}Erro: Disco $DISK não encontrado${NC}"
+    exit 1
+fi
+
 echo -e "${GREEN}ATENÇÃO: Isso irá apagar TODOS os dados do disco $DISK${NC}"
 echo "Pressione ENTER para continuar ou CTRL+C para cancelar"
 read
+
+# Verificar e desmontar partições existentes
+echo -e "${YELLOW}Verificando partições montadas...${NC}"
+unmount_if_needed "/mnt/boot"
+unmount_if_needed "/mnt"
+
+# Desativar swap se estiver em uso
+swapoff -a
 
 # Particionamento
 echo -e "${GREEN}Criando partições...${NC}"
@@ -66,6 +96,9 @@ else
         mkpart primary ext4 8512MiB 100%
     check_error "Falha no particionamento Legacy"
 fi
+
+# Esperar pelo udev processar os eventos
+sleep 2
 
 # Formatação
 echo -e "${GREEN}Formatando partições...${NC}"
@@ -93,6 +126,12 @@ mkdir -p /mnt/boot
 mount "${DISK}1" /mnt/boot
 check_error "Falha na montagem da partição boot"
 
+# Verificar se /mnt/etc/nixos já existe
+if [ -d "/mnt/etc/nixos" ]; then
+    echo -e "${YELLOW}Backup das configurações antigas...${NC}"
+    mv /mnt/etc/nixos /mnt/etc/nixos.bak
+fi
+
 # Copiando configurações
 echo -e "${GREEN}Copiando configurações...${NC}"
 mkdir -p /mnt/etc/nixos
@@ -115,4 +154,4 @@ echo "1. Digite 'reboot' para reiniciar"
 echo "2. Remova a mídia de instalação"
 echo "3. Faça login como root"
 echo "4. Configure a senha do root com 'passwd'"
-echo "5. Configure a senha do usuário tomate com 'passwd admin'"
+echo "5. Configure a senha do usuário admin com 'passwd admin'"
