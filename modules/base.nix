@@ -47,6 +47,12 @@
         };
       };
     };
+    # Configuração de logs
+    journald.extraConfig = ''
+      SystemMaxUse=100M
+      MaxRetentionSec=1week
+    '';
+  };
 
   # Configurações Básicas
   time.timeZone = "America/Manaus";
@@ -115,5 +121,13 @@
       la = "ls -la";
       l = "ls -CF";
     };
+    shellInit = ''
+      export HISTSIZE=10000
+      export HISTFILESIZE=20000
+      export HISTCONTROL=ignoreboth
+      shopt -s histappend
+      shopt -s checkwinsize
+      export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    '';
   };
-};
+}
