@@ -5,32 +5,29 @@
     fileSystems."/" = {
       device = "/dev/sda3";
       fsType = "ext4";
-      options = [ "defaults" "noatime" ];
     };
 
     fileSystems."/boot" = {
       device = "/dev/sda1";
-      # Ajuste automático do tipo de sistema de arquivos baseado no modo de boot
-      fsType = if config.boot.loader.systemd-boot.enable then "vfat" else "ext4";
-      options = [ "defaults" ];
+      fsType = "vfat";
+      options = [ "defaults" "noatime" ];
     };
 
     swapDevices = [ { device = "/dev/sda2"; } ];
 
-    # Configuração do bootloader
+    # Configuração do bootloader para UEFI
     boot.loader = {
-      # Para UEFI
-      systemd-boot.enable = config.boot.loader.efi.canTouchEfiVariables;
-      efi.canTouchEfiVariables = true;
-
-      # Para Legacy/BIOS
+      efi = {
+        canTouchEfiVariables = true;
+        efiSysMountPoint = "/boot";
+      };
       grub = {
-        enable = !config.boot.loader.systemd-boot.enable;
+        enable = true;
         version = 2;
-        device = "/dev/sda";
+        device = "nodev";
+        efiSupport = true;
       };
     };
-
   # Configuração de Rede Unificada
   networking = {
     hostName = "mr-tomate-server";
