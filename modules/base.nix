@@ -1,22 +1,25 @@
 { config, pkgs, ... }:
 
 {
+{
   # Configuração do sistema de arquivos
   fileSystems."/" = {
-    device = "/dev/sda3";
+    device = "/dev/sda3";  # Será substituído pelo UUID durante a instalação
     fsType = "ext4";
+    options = [ "defaults" "noatime" ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/sda1";
+    device = "/dev/sda1";  # Será substituído pelo UUID durante a instalação
     fsType = "vfat";
+    options = [ "defaults" ];
   };
 
-  swapDevices = [ { device = "/dev/sda2"; } ];
-
+  swapDevices = [ {
+    device = "/dev/sda2";  # Será substituído pelo UUID durante a instalação
+  } ];
   boot.loader.grub = {
     enable = true;
-    version = 2;
     device = "/dev/sda";
   };
 

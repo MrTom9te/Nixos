@@ -110,6 +110,31 @@ else
     check_error "Falha na formatação da partição boot"
 fi
 
+# Esperar pelo udev processar os eventos e pegar UUIDs
+sleep 2
+ROOT_UUID=$(blkid -s UUID -o value "${DISK}3")
+BOOT_UUID=$(blkid -s UUID -o value "${DISK}1")
+SWAP_UUID=$(blkid -s UUID -o value "${DISK}2")
+
+# Verificar se os UUIDs foram obtidos
+if [ -z "$ROOT_UUID" ] || [ -z "$BOOT_UUID" ] || [ -z "$SWAP_UUID" ]; then
+    echo -e "${RED}Erro: Não foi possível obter todos os UUIDs${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}UUIDs detectados:${NC}"
+echo "Root: ${ROOT_UUID}"
+echo "Boot: ${BOOT_UUID}"
+echo "Swap: ${SWAP_UUID}"
+
+# ... antes de copiar as configurações ...
+
+# Atualizar base.nix com os UUIDs
+echo -e "${GREEN}Atualizando configuração com UUIDs...${NC}"
+sed -i "s|device = \"/dev/sda3\"|device = \"/dev/disk/by-uuid/${ROOT_UUID}\"|" /mnt/etc/nixos/modules/base.nix
+sed -i "s|device = \"/dev/sda1\"|device = \"/dev/disk/by-uuid/${BOOT_UUID}\"|" /mnt/etc/nixos/modules/base.nix
+sed -i "s|device = \"/dev/sda2\"|device = \"/dev/disk/by-uuid/${SWAP_UUID}\"|" /mnt/etc/nixos/modules/base.nix
+
 mkswap "${DISK}2"
 check_error "Falha na criação do swap"
 swapon "${DISK}2"
