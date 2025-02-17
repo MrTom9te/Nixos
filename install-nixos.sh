@@ -110,6 +110,13 @@ else
     check_error "Falha na formatação da partição boot"
 fi
 
+mkswap "${DISK}2"
+check_error "Falha na criação do swap"
+swapon "${DISK}2"
+
+mkfs.ext4 "${DISK}3"
+check_error "Falha na formatação da partição root"
+
 # Esperar pelo udev processar os eventos e pegar UUIDs
 sleep 2
 ROOT_UUID=$(blkid -s UUID -o value "${DISK}3")
@@ -126,21 +133,6 @@ echo -e "${GREEN}UUIDs detectados:${NC}"
 echo "Root: ${ROOT_UUID}"
 echo "Boot: ${BOOT_UUID}"
 echo "Swap: ${SWAP_UUID}"
-
-# ... antes de copiar as configurações ...
-
-# Atualizar base.nix com os UUIDs
-echo -e "${GREEN}Atualizando configuração com UUIDs...${NC}"
-sed -i "s|device = \"/dev/sda3\"|device = \"/dev/disk/by-uuid/${ROOT_UUID}\"|" /mnt/etc/nixos/modules/base.nix
-sed -i "s|device = \"/dev/sda1\"|device = \"/dev/disk/by-uuid/${BOOT_UUID}\"|" /mnt/etc/nixos/modules/base.nix
-sed -i "s|device = \"/dev/sda2\"|device = \"/dev/disk/by-uuid/${SWAP_UUID}\"|" /mnt/etc/nixos/modules/base.nix
-
-mkswap "${DISK}2"
-check_error "Falha na criação do swap"
-swapon "${DISK}2"
-
-mkfs.ext4 "${DISK}3"
-check_error "Falha na formatação da partição root"
 
 # Montagem
 echo -e "${GREEN}Montando partições...${NC}"
@@ -163,6 +155,12 @@ mkdir -p /mnt/etc/nixos
 cp -r ./modules /mnt/etc/nixos/
 cp ./configuration.nix /mnt/etc/nixos/
 check_error "Falha na cópia das configurações"
+
+# Atualizar base.nix com os UUIDs
+echo -e "${GREEN}Atualizando configuração com UUIDs...${NC}"
+sed -i "s|device = \"/dev/sda3\"|device = \"/dev/disk/by-uuid/${ROOT_UUID}\"|" /mnt/etc/nixos/modules/base.nix
+sed -i "s|device = \"/dev/sda1\"|device = \"/dev/disk/by-uuid/${BOOT_UUID}\"|" /mnt/etc/nixos/modules/base.nix
+sed -i "s|device = \"/dev/sda2\"|device = \"/dev/disk/by-uuid/${SWAP_UUID}\"|" /mnt/etc/nixos/modules/base.nix
 
 # Gerando configuração do hardware
 echo -e "${GREEN}Gerando configuração de hardware...${NC}"
