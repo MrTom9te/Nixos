@@ -84,7 +84,8 @@ echo -e "${GREEN}Criando partições...${NC}"
 if [ $UEFI_MODE -eq 1 ]; then
     # Particionamento UEFI
     parted -s $DISK -- mklabel gpt \
-        mkpart primary fat32 1MiB 512MiB \
+        mkpart ESP fat32 1MiB 512MiB \
+        set 1 esp on \
         mkpart primary linux-swap 512MiB 8512MiB \
         mkpart primary ext4 8512MiB 100%
     check_error "Falha no particionamento UEFI"
@@ -92,6 +93,7 @@ else
     # Particionamento Legacy
     parted -s $DISK -- mklabel msdos \
         mkpart primary ext4 1MiB 512MiB \
+        set 1 boot on \
         mkpart primary linux-swap 512MiB 8512MiB \
         mkpart primary ext4 8512MiB 100%
     check_error "Falha no particionamento Legacy"
@@ -100,17 +102,14 @@ fi
 # Esperar pelo udev processar os eventos
 sleep 2
 
+# Formatação
 echo -e "${GREEN}Formatando partições...${NC}"
 if [ $UEFI_MODE -eq 1 ]; then
     mkfs.fat -F 32 "${DISK}1"
     check_error "Falha na formatação da partição EFI"
-    # Atualizar base.nix para UEFI
-    sed -i 's/fsType = "ext4"/fsType = "vfat"/' /mnt/etc/nixos/modules/base.nix
 else
     mkfs.ext4 "${DISK}1"
     check_error "Falha na formatação da partição boot"
-    # Atualizar base.nix para Legacy
-    sed -i 's/fsType = "vfat"/fsType = "ext4"/' /mnt/etc/nixos/modules/base.nix
 fi
 
 mkswap "${DISK}2"
