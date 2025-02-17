@@ -100,14 +100,17 @@ fi
 # Esperar pelo udev processar os eventos
 sleep 2
 
-# Formatação
 echo -e "${GREEN}Formatando partições...${NC}"
 if [ $UEFI_MODE -eq 1 ]; then
     mkfs.fat -F 32 "${DISK}1"
     check_error "Falha na formatação da partição EFI"
+    # Atualizar base.nix para UEFI
+    sed -i 's/fsType = "ext4"/fsType = "vfat"/' /mnt/etc/nixos/modules/base.nix
 else
     mkfs.ext4 "${DISK}1"
     check_error "Falha na formatação da partição boot"
+    # Atualizar base.nix para Legacy
+    sed -i 's/fsType = "vfat"/fsType = "ext4"/' /mnt/etc/nixos/modules/base.nix
 fi
 
 mkswap "${DISK}2"
