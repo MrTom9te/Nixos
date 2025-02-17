@@ -1,7 +1,6 @@
 { config, pkgs, ... }:
 
 {
-{
   # Configuração do sistema de arquivos
   fileSystems."/" = {
     device = "/dev/sda3";  # Será substituído pelo UUID durante a instalação
